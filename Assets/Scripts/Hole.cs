@@ -4,31 +4,29 @@ using UnityEngine;
 
 public class Hole : MonoBehaviour {
 
-    bool full = false;
-    bool win = false;
+    public bool full = false;
 
     public bool Full
     {
         get { return full; }
     }
 
-    public bool Win
+    private void OnTriggerStay(Collider other)
     {
-        get { return win; }
-        set { win = value; }
+        if (other.tag == "Ball" && !full)
+        {
+            full = true;
+        }
+        if (Input.GetAxis("Jump") > 0 && full)
+            Eject(other);
     }
 
-    private void OnTriggerStay(Collider other)
+    private void OnTriggerExit(Collider other)
     {
         if (other.tag == "Ball")
         {
-            full = true;
-         
-            if (Input.GetAxis("Jump") > 0|| win)
-                Eject(other);
-        }
-        else
             full = false;
+        }
     }
 
     public void Eject(Collider other)

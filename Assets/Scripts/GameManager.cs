@@ -1,46 +1,75 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
     [SerializeField]
     GameObject[] holes;
+    [SerializeField]
+    GameObject prefabBall;
+    int[] fulls = new int[3];
+    [SerializeField]
+    Text messageText;
 
-	// Use this for initialization
-	void Start () {
+    // Win Check Support
+    float winDetectionTime;
+    bool win = false;
+    const float wait = 2f;
+
+    // Use this for initialization
+    void Start () {
         holes = GameObject.FindGameObjectsWithTag("Hole");
+        messageText.text = string.Empty;
+
+        for (int i = 0; i < 3; i++)
+        {
+            Vector3 randomPosition = new Vector3((Random.value - 0.5f)*7f, (Random.value + 0.5f) * 2, (Random.value - 0.5f) * 7);
+            Instantiate(prefabBall,randomPosition, Quaternion.identity);
+        }
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        if (CheckWin())
+        if (CheckWin() && !win)
         {
-            OnWin();
+            win = true;
+            winDetectionTime = Time.time;
         }
-	}
+
+
+        if (win && Time.time >= winDetectionTime + wait)
+            OnWin();
+
+        if (win && !CheckWin())
+        {
+            messageText.text = string.Empty;
+            win = false;
+        }
+
+
+    }
 
     bool CheckWin()
     {
-        foreach (GameObject hole in holes)
+        for (int i = 0; i < holes.Length; i++)
         {
-            print(hole.GetComponent<Hole>().Full);
-            if (!hole.GetComponent<Hole>().Full)
-            {
-                print("still some empty hole...");
-                return false;
-            }
+            if (holes[i].GetComponent<Hole>().Full)
+                fulls[i] = 1;
+            else fulls[i] = 0;
         }
-        print("all full!");
-        return true;
-
+        return (fulls.Sum() == fulls.Length);
     }
 
     void OnWin()
     {
-        print("Win!");
-        foreach (GameObject hole in holes)
-            hole.GetComponent<Hole>().Win = true;
+        messageText.text = "A Win!";
     }
 
+    IEnumerator WaitHalfSecond()
+    {
+        yield return new WaitForSeconds(0.5f);
+    }
 }
