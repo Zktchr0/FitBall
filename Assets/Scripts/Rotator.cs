@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// a rotator for the camera
+/// </summary>
 public class Rotator : MonoBehaviour {
 
     public float speed = 12f;
